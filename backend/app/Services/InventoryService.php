@@ -59,6 +59,8 @@ class InventoryService
                 'delta' => $newStock - $oldStock,
                 'source' => $data['source'] ?? 'API',
                 'note' => $data['note'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
             ]);
 
             Log::info("Stock actualizado para producto {$id}: {$oldStock} → {$newStock}");
