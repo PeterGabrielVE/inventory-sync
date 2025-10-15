@@ -1,0 +1,25 @@
+# WordPress core
+/wp-admin/
+/wp-includes/
+
+# Archivos de configuración sensibles
+wp-config.php
+.env
+
+# Archivos de subida de medios
+wp-content/uploads/
+
+# Plugins de terceros
+#wp-content/plugins/*
+
+# Temas de terceros
+wp-content/themes/*
+
+wp-content/languages/* 
+
+# Archivos temporales
+*.log
+*.sql
+*.zip
+*.tar.gz
+node_modules/

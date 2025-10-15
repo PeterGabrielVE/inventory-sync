@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InventoryLog;
+use Carbon\Carbon;
 
 class InventoryLogController extends Controller
 {
@@ -12,25 +13,38 @@ class InventoryLogController extends Controller
     {
         $query = InventoryLog::query();
 
-        // Filtros opcionales
-        if ($request->has('product_id')) {
+        if ($request->filled('from')) {
+            $query->where('created_at', '>=', $request->from . ' 00:00:00');
+        }
+
+        if ($request->filled('to')) {
+            $query->where('created_at', '<=', $request->to . ' 23:59:59');
+        }
+
+        if ($request->filled('product_id')) {
             $query->where('product_id', $request->product_id);
         }
 
-        if ($request->has('source')) {
-            $query->where('source', $request->source);
-        }
+        return $query->with('product:id,name')
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function ($log) {
+                $old = $log->old_stock ?? 0;
+                $new = $log->new_stock ?? 0;
+                $delta = $new - $old;
 
-        if ($request->has('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
-        }
-
-        if ($request->has('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
-        }
-
-        $logs = $query->orderBy('created_at', 'desc')->get();
-
-        return response()->json($logs);
+                return [
+                    'id' => $log->id,
+                    'product_id' => $log->product_id,
+                    'product_name' => $log->product->name ?? 'N/A',
+                    'old_stock' => $old,
+                    'new_stock' => $new,
+                    'delta' => $delta,
+                    'type' => $delta > 0 ? 'Entrada' : ($delta < 0 ? 'Salida' : 'Sin cambio'),
+                    'source' => $log->source ?? '',
+                    'note' => $log->note ?? '',
+                    'created_at' => Carbon::parse($log->created_at)->format('d-m-Y H:i:s'),
+                ];
+            });
     }
 }

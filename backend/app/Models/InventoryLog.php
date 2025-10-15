@@ -8,4 +8,9 @@ class InventoryLog extends Model
     protected $fillable = [
         'product_id', 'old_stock', 'new_stock', 'delta', 'source', 'note', 'created_at'
     ];
+
+    public function product()
+    {
+        return $this->belongsTo(Product::class, 'product_id');
+    }
 }
