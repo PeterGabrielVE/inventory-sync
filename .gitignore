@@ -10,7 +10,7 @@ wp-config.php
 wp-content/uploads/
 
 # Plugins de terceros
-wp-content/plugins/*
+#wp-content/plugins/*
 
 # Temas de terceros
 wp-content/themes/*

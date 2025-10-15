@@ -1,8 +1,18 @@
 $(document).ready(function() {
 
+    function showLoading(show) {
+        if (show) {
+            $(".loading-overlay").fadeIn(200);
+        } else {
+            $(".loading-overlay").fadeOut(200);
+        }
+    }
+
     function loadInventoryLogs(filters = {}) {
+        showLoading(true);
+
         $.ajax({
-            url: 'http://127.0.0.1:8000/api/inventory-logs', 
+            url: 'http://127.0.0.1:8000/api/inventory-logs',
             method: 'GET',
             data: filters,
             dataType: 'json',
@@ -10,7 +20,7 @@ $(document).ready(function() {
                 const tbody = $('#inventory-log-table tbody');
                 tbody.empty();
 
-                if(response.length === 0) {
+                if (response.length === 0) {
                     tbody.append('<tr><td colspan="8">No se encontraron registros</td></tr>');
                     return;
                 }
@@ -19,7 +29,7 @@ $(document).ready(function() {
                     tbody.append(`
                         <tr>
                             <td>${log.id}</td>
-                            <td>${log.product_id}</td>
+                            <td>${log.product_name}</td>
                             <td>${log.old_stock}</td>
                             <td>${log.new_stock}</td>
                             <td>${log.delta}</td>
@@ -31,7 +41,10 @@ $(document).ready(function() {
                 });
             },
             error: function(xhr) {
-                alert('Error al cargar los logs: ' + xhr.responseText);
+                alert('Error al cargar los logs: ' + xhr.statusText);
+            },
+            complete: function() {
+                showLoading(false);
             }
         });
     }
@@ -45,8 +58,8 @@ $(document).ready(function() {
 
         const filters = {
             product_id: $('#product_id').val(),
-            start_date: $('#start_date').val(),
-            end_date: $('#end_date').val()
+            from: $('#from').val(),
+            to: $('#to').val()
         };
 
         loadInventoryLogs(filters);
