@@ -22,4 +22,5 @@ CREATE TABLE inventory_logs (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_logs_product FOREIGN KEY (product_id) REFERENCES products(id)
     ON DELETE CASCADE
+  INDEX idx_logs_product_date (product_id, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
