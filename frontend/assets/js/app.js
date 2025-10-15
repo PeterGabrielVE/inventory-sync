@@ -2,7 +2,7 @@ $(document).ready(function() {
 
     function loadInventoryLogs(filters = {}) {
         $.ajax({
-            url: '/api/inventory-logs',
+            url: 'http://127.0.0.1:8000/api/inventory-logs', 
             method: 'GET',
             data: filters,
             dataType: 'json',
