@@ -8,77 +8,37 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\Product;
 use App\Models\InventoryLog;
+use App\Services\InventoryService;
+use App\Http\Requests\UpdateStockRequest;
 use Exception;
 
 class ProductController extends Controller
 {
-    public function updateStock(Request $request, $id)
+    protected $inventoryService;
+
+    public function __construct(InventoryService $inventoryService)
+    {
+        $this->inventoryService = $inventoryService;
+    }
+
+    public function updateStock(UpdateStockRequest $request, $id)
     {
         try {
-            Log::info('UpdateStock request', $request->all());
 
-            $request->validate([
-                'new_stock' => 'required|integer',
-                'operation' => 'required|in:add,subtract',
-                'source' => 'nullable|string|max:100',
-                'note' => 'nullable|string|max:512',
-            ]);
+            $validated = $request->validated();
 
-            return DB::transaction(function () use ($id, $request) {
+            $product = $this->inventoryService->updateStock($id, $validated);
 
-                $product = Product::lockForUpdate()->find($id);
-                if (!$product) {
-                    Log::warning("Producto ID {$id} no encontrado");
-                    return response()->json(['error' => 'Producto no encontrado'], 404);
-                }
-
-                $quantity = $request->input('new_stock');
-                if ($quantity <= 0) {
-                    Log::warning("Cantidad no válida: $quantity");
-                    return response()->json(['error' => 'Cantidad debe ser positiva'], 422);
-                }
-
-                $oldStock = $product->stock;
-                $newStock = $oldStock;
-
-                if ($request->input('operation') === 'add') {
-                    $newStock += $quantity;
-                } else {
-                    if ($oldStock < $quantity) {
-                        Log::warning("Stock insuficiente para producto {$id}");
-                        return response()->json(['error' => 'Stock insuficiente'], 422);
-                    }
-                    $newStock -= $quantity;
-                }
-
-                // Guardar producto
-                $product->stock = $newStock;
-                $product->save();
-
-                // Registrar log
-                InventoryLog::create([
-                    'product_id' => $product->id,
-                    'old_stock' => $oldStock,
-                    'new_stock' => $newStock,
-                    'delta' => $newStock - $oldStock,
-                    'source' => $request->input('source', 'API'),
-                    'note' => $request->input('note'),
-                ]);
-
-                Log::info("✅ Stock actualizado para producto {$id}: {$oldStock} → {$newStock}");
-
-                return response()->json([
-                    'message' => 'Stock actualizado correctamente',
-                    'product' => $product
-                ], 200);
-            });
-
-        } catch (Exception $e) {
-            Log::error('❌ Error en updateStock: ' . $e->getMessage());
             return response()->json([
-                'error' => 'Error interno del servidor',
-                'details' => $e->getMessage(),
-            ], 500);
+                'message' => 'Stock actualizado correctamente',
+                'product' => $product
+            ], 200);
+        } catch (Exception $e) {
+            $status = $e->getCode() >= 400 && $e->getCode() < 600 ? $e->getCode() : 500;
+            Log::error('Error en updateStock: ' . $e->getMessage());
+            return response()->json([
+                'error' => $e->getMessage(),
+            ], $status);
         }
     }
 }
