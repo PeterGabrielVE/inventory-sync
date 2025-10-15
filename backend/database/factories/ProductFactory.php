@@ -20,7 +20,7 @@ class ProductFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,
+            'name' => 'Product ' . $this->faker->unique()->randomNumber(3),
             'stock' => $this->faker->numberBetween(0, 100),
             'price' => $this->faker->randomFloat(2, 10, 100),
             // agrega otros campos obligatorios del modelo

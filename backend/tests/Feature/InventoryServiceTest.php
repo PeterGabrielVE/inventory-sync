@@ -1,11 +1,9 @@
 <?php
 
-namespace Tests\Unit;
+namespace Tests\Feature;
 
 use Tests\TestCase;
 use App\Models\Product;
-use App\Models\InventoryLog;
-use App\Repositories\ProductRepository;
 use App\Services\InventoryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Exception;
@@ -15,13 +13,13 @@ class InventoryServiceTest extends TestCase
     use RefreshDatabase;
 
     protected InventoryService $service;
-    protected ProductRepository $repository;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new ProductRepository();
-        $this->service = new InventoryService($this->repository);
+
+        // Dejar que Laravel resuelva todas las dependencias automáticamente
+        $this->service = app(InventoryService::class);
     }
 
     /** @test */
@@ -32,7 +30,7 @@ class InventoryServiceTest extends TestCase
         $updatedProduct = $this->service->updateStock($product->id, [
             'new_stock' => 5,
             'operation' => 'add',
-            'source' => 'unit_test',
+            'source' => 'feature_test',
             'note' => 'Prueba agregar stock'
         ]);
 
@@ -54,7 +52,7 @@ class InventoryServiceTest extends TestCase
         $updatedProduct = $this->service->updateStock($product->id, [
             'new_stock' => 3,
             'operation' => 'subtract',
-            'source' => 'unit_test',
+            'source' => 'feature_test',
             'note' => 'Prueba restar stock'
         ]);
 
