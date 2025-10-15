@@ -19,7 +19,10 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://127.0.0.1:5500'],
+    'allowed_origins' => [
+        'http://localhost:8080',   //  WordPress
+        'http://127.0.0.1:5500',   // Frontend
+    ],
 
     'allowed_origins_patterns' => [],
 
