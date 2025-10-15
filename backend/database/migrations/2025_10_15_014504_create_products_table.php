@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');        // nombre del producto
-            $table->integer('stock');      // stock actual
-            $table->decimal('price', 8, 2); // precio
+            $table->string('name');                      // Nombre del producto
+            $table->string('sku', 64)->unique();     // Referencia única
+            $table->integer('stock')->default(0);        // Stock actual
+            $table->decimal('price', 8, 2);              // Precio
             $table->timestamps();
         });
     }

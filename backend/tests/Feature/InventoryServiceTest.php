@@ -5,12 +5,12 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\Product;
 use App\Services\InventoryService;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Exception;
 
 class InventoryServiceTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseTransactions;
 
     protected InventoryService $service;
 
@@ -18,6 +18,7 @@ class InventoryServiceTest extends TestCase
     {
         parent::setUp();
 
+        $this->artisan('db:seed', ['--class' => 'DataBaseSeeder']);
         // Dejar que Laravel resuelva todas las dependencias automáticamente
         $this->service = app(InventoryService::class);
     }
